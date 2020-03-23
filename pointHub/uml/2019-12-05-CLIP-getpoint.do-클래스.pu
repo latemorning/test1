@@ -1,0 +1,396 @@
+@startuml
+
+
+class PointRepeat{
+  -user_ci : String
+  -user_id : String
+  -ctn : String
+  -partner : String
+  -hub_tr_id : String
+  -cancel_tr_id : String
+  -date : String
+  -time : String
+  -remoteIp : String
+  -transId : String
+  -pointOver : boolean
+  -req_point : String
+  -res_point : String
+  -cancel_point : String
+  -result : String
+  -resultMsg : String
+  -retcode : String
+  -optcode : String
+  -service_id : String
+  -total_point : int
+}
+
+interface PointRepeatService{
+  +getCardPoint(HttpServletRequest, PointRepeat) : PointRepeat
+  +minusPoint(HttpServletRequest, PointRepeat) : PointRepeat
+  +cancelPoint(HttpServletRequest, PointRepeat) : PointRepeat
+  +minusBcPoint(PointRepeat) : PointRepeat
+  +minusHanaPoint(PointRepeat) : PointRepeat
+  +minusShinhanPoint(PointRepeat) : PointRepeat
+  +minusKbPoint(PointRepeat) : PointRepeat
+  +minusSamsungPoint(PointRepeat) : PointRepeat
+  +minusBookAndLifePoint(PointRepeat) : PointRepeat
+  +minusHyundaiPoint(PointRepeat) : PointRepeat
+  +calculatePointHub() : int
+  +calculatePointHub(String preDate) : int
+}
+
+class PointRepeatServiceImpl{
+  ~logger : Logger
+  -pointSwapIniPath : String
+  -POINT_SWAP_MAX_HANA : int
+  -POINT_SWAP_MAX_KB : int
+  -POINT_SWAP_MAX_SHINHAN : int
+  -POINT_SWAP_MAX_TOTAL : int
+  -POINT_SWAP_DAY_MAX_HANA : int
+  -pointSwapIniFile : String
+  -POINT_SWAP_DAY_MAX_HYUNDAI : int
+  -pointSwapDao : PointSwapDao
+  -hubSwapDao : HubSwapDao
+  -carSwapDao : CarSwapDao
+  -hanaCardClientService : HanaCardClientService
+  -kbCardClientService : KbCardClientService
+  -shinhanCardClientService : ShinhanCardClientService
+  -bcCardClientService : BcCardClientService
+  -samsungCardClientService : SamsungCardClientService
+  -bookandlifeClientService : BookAndLifeClientService
+  -hyundaiCardClientService : HyundaiCardClientService
+  +getSwapConfigFile() : String
+  +getCardPoint(HttpServletRequest, PointRepeat) : PointRepeat
+  +minusPoint(HttpServletRequest, PointRepeat) : PointRepeat
+  +cancelPoint(HttpServletRequest, PointRepeat) : PointRepeat
+  +minusBcPoint(PointRepeat) : PointRepeat
+  +minusHanaPoint(PointRepeat) : PointRepeat
+  +minusShinhanPoint(PointRepeat) : PointRepeat
+  +minusKbPoint(PointRepeat) : PointRepeat
+  +minusSamsungPoint(PointRepeat) : PointRepeat
+  +minusBookAndLifePoint(PointRepeat) : PointRepeat
+  +minusHyundaiPoint(PointRepeat) : PointRepeat
+  -parsePoint(String) : int
+  +calculatePointHub() : int
+  +calculatePointHub(String) : int
+}
+
+PointRepeatService <|.. PointRepeatServiceImpl
+PointRepeatServiceImpl ..> PointRepeat
+
+'PointRepeatServiceImpl ..> BcCardMessage
+'PointRepeatServiceImpl ..> KbCardMessage
+'PointRepeatServiceImpl ..> HanaCardMessage
+'PointRepeatServiceImpl ..> ShinhanCardMessage
+'PointRepeatServiceImpl ..> SamsungCardMessage
+'PointRepeatServiceImpl ..> BookAndLifeMessage
+'PointRepeatServiceImpl ..> HyundaiCardMessage
+
+
+class PointRepeaterController{
+  +getpoint(PointRepeat, HttpServletRequest, HttpServletResponse) : ModelAndView
+}
+
+PointRepeaterController ..> PointRepeat
+PointRepeaterController ..> PointRepeatServiceImpl
+
+
+class PointSwapInfo #29bae2{
+  -idx : int
+  -trans_div : String
+  -trans_req_date : String
+  -trans_res_date : String
+  -reg_source : String
+  -user_ci : String
+  -cust_id_org : String
+  -trans_id : String
+  -ref_trans_id : String
+  -req_point : int
+  -res_point : int
+  -avail_point : int
+  -file_name : String
+  -res_code : String
+  -res_message : String
+  -result : String
+  -req_msg_bytes : byte[]
+  -res_msg_bytes : byte[]
+  -ftpFileInfo : FtpFileInfo
+  -ref_trans_req_date : String
+  -track2data : String
+  -approve_no : String
+  -approve_date : String
+  -approve_time : String
+  -serial_no : int
+  -isHub : boolean
+  -hub_trans_id : String
+  -trans_date : String
+  -trans_src : String
+  -reg_date : String
+  -hub_ref_trans_id : String
+  -isCar : boolean
+  -car_trans_id : String
+  -car_ref_trans_id : String
+  -service_id : String
+  -ip : String
+  -retCode : String
+  -procDate : String[]
+  -orderNo : String[]
+  -procAmt : String[]
+  -access_token : String
+  -refresh_token : String
+  -token_type : String
+  -expire_in : String
+  -scope : String
+  -resPoint : int
+  -total_point : int
+}
+
+class BcCardMessage{
+  -isPointOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+}
+
+class KbCardMessage{
+  -isPointOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+}
+
+class HanaCardMessage{
+  -isPointOver : boolean
+  -isCountOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+  +isCountOver() : boolean
+  +setCountOver(boolean) : void
+}
+
+class ShinhanCardMessage{
+  -isPointOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+}
+
+class SamsungCardMessage{
+  -isPointOver : boolean
+  -isCountOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+  +isCountOver() : boolean
+  +setCountOver(boolean) : void
+}
+
+class BookAndLifeMessage{
+  -isPointOver : boolean
+  -isCountOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+  +isCountOver() : boolean
+  +setCountOver(boolean) : void
+}
+
+class HyundaiCardMessage{
+  -isPointOver : boolean
+  +isPointOver() : boolean
+  +setPointOver(boolean) : void
+}
+
+
+PointSwapInfo <|-- BcCardMessage
+PointSwapInfo <|-- KbCardMessage
+PointSwapInfo <|-- HanaCardMessage
+PointSwapInfo <|-- ShinhanCardMessage
+PointSwapInfo <|-- SamsungCardMessage
+PointSwapInfo <|-- BookAndLifeMessage
+PointSwapInfo <|-- HyundaiCardMessage
+
+
+interface BcCardClientService{
+  +getPoint(BcCardMessage) : Future<BcCardMessage>
+  +minusPoint(BcCardMessage) : Future<BcCardMessage>
+  +cancelMinusPoint(BcCardMessage) : Future<BcCardMessage>
+  +calculateBcPointSwap() : int
+  +calculateBcPointSwap(String) : int
+  +processBcPointSwap(String) : int
+}
+
+class BcCardClientServiceImpl{
+  ~logger : Logger
+  -pointSwapIniFile : String
+  -API_DOMAIN : String
+  -fakeUserCi : Boolean
+  -pointSwapDao : PointSwapDao
+  -hubSwapDao : HubSwapDao
+  -carSwapDao : CarSwapDao
+  +init() : void
+  +getPoint(BcCardMessage) : Future<BcCardMessage>
+  +minusPoint(BcCardMessage) : Future<BcCardMessage>
+  +cancelMinusPoint(BcCardMessage) : Future<BcCardMessage>
+  +calculateBcPointSwap() : int
+  +calculateBcPointSwap(String) : int
+  +processBcPointSwap(String) : int
+  -getSwapConfigFile() : String
+}
+
+BcCardClientService <|.. BcCardClientServiceImpl
+BcCardMessage <..        BcCardClientServiceImpl
+CardPointSwapManager <.. BcCardClientServiceImpl
+PointSwapDaoImpl <..     BcCardClientServiceImpl
+
+class CardPointSwapManager #29bae2{
+  -logger : Logger
+  ~handler : PointSwapService
+  +CardPointSwapManager(String) : CardPointSwapManager
+  +setHandler(PointSwapService) : void
+  +getPoint() : void
+  +usePoint() : void
+  +cancelUse() : void
+  +netCancelUse() : void
+  +getTransactionUseRecord() : void
+  +getTransactionCancRecord() : void
+  +putRecordFile(FtpFileInfo) : int
+  +getRecordFile(FtpFileInfo) : int
+  +makeLocalRecordFile(FtpFileInfo, List<PointSwapInfo>) : void
+  +parseRemoteRecordFile(FtpFileInfo) : List<PointSwapInfo>
+  +parseRemoteRecordFileDate(FtpFileInfo, String) : List<PointSwapInfo>
+  +checkFanUser() : void
+  +makeDefaultTrId(String, String, String, String) : String
+}
+
+PointSwapService <-- CardPointSwapManager
+
+interface PointSwapService #29bae2{
+  +getPoint() : void
+  +usePoint() : void
+  +cancelUse() : void
+  +netCancelUse() : void
+  +makeLocalRecordFile(FtpFileInfo, List<PointSwapInfo>) : void
+  +parseRemoteRecordFile(FtpFileInfo) : List<PointSwapInfo>
+  +parseRemoteRecordFileDate(FtpFileInfo, String) : List<PointSwapInfo>
+  +putRecordFile(FtpFileInfo) : int
+  +getRecordFile(FtpFileInfo) : int
+  +checkFanUser() : void
+  +getTransactionUseRecord() : void
+  +getTransactionCancRecord() : void
+}
+
+class PointSwapServiceHandler #29bae2{
+  #pointSwapInfo : PointSwapInfo
+  #systemName : String
+  #serviceIp : String
+  #serverPort : int
+  #timeout : int
+  #teleLogPath : String
+  #reconcileFilePath : String
+  +PointSwapServiceHandler()
+  +getPoint() : void
+  +usePoint() : void
+  +cancelUse() : void
+  +netCancelUse() : void
+  +checkFanUser() : void
+  #getProp(String) : String
+  #getVarProp(String) : String
+  #addN(String, IntHolder, int) : void
+  #addN(byte[], String, IntHolder, int) : void
+  #addAN(String, IntHolder, int) : void
+  #addAN(byte[], String, IntHolder, int) : void
+  #addHAN(String, IntHolder, int) : void
+  #addHAN(byte[], String, IntHolder, int) : void
+  #getN(int, int) : String
+  #getN(byte[], int, int) : String
+  #getAN(int, int) : String
+  #getAN(byte[], int, int) : String
+  #getHAN(int, int) : String
+  #getHAN(byte[], int, int) : String
+  #writeTeleLog(int) : void
+  -makeTelegramString(byte[]) : String
+  +makeLocalRecordFile(FtpFileInfo, List<PointSwapInfo>) : void
+  +parseRemoteRecordFile(FtpFileInfo) : List<PointSwapInfo>
+  +parseRemoteRecordFileDate(FtpFileInfo, String) : List<PointSwapInfo>
+  +putRecordFile(FtpFileInfo) : int
+  +getRecordFile(FtpFileInfo) : int
+  +getTransactionUseRecord() : void
+  +getTransactionCancRecord() : void
+}
+
+PointSwapService <|.. PointSwapServiceHandler
+
+class PointHandler_BC #29bae2{
+  -logger : Logger
+  +PointHandler_BC(PointSwapInfo)
+  ~init() : void
+  +getPoint() : void
+  +usePoint() : void
+  +cancelUse() : void
+  +netCancelUse() : void
+  +initReqMsg(int) : void
+  +initReqMsg(byte[]) : void
+  +makeGetReqMsg() : void
+  +makeUseReqMsg() : void
+  +parseGetResMsg() : void
+  +parseUseResMsg() : void
+  +makeLocalRecordFile(FtpFileInfo, List<PointSwapInfo>) : void
+  +parseRemoteRecordFile(FtpFileInfo) : List<PointSwapInfo>
+  +parseRemoteRecordFileDate(FtpFileInfo, String) : List<PointSwapInfo>
+  -procRow(String) : PointSwapInfo
+}
+
+PointSwapService <|.. PointHandler_BC
+PointSwapServiceHandler <|-- PointHandler_BC
+
+interface PointSwapDao{
+  +selectDailySerialNo(String) : int
+  +selectDailyApproveNo(String) : int
+  +selectTodaySwapPoint(Map<String, Object>) : List<Map<String, Object>>
+  +selectSwapList(PointSwapInfo) : List<PointSwapInfo>
+  +selectSwapListPRD(Map<String, Object>) : List<PointSwapInfo>
+  +selectSwapTimeoutList(PointSwapInfo) : List<PointSwapInfo>
+  +selectSwapInfo(PointSwapInfo) : PointSwapInfo
+  +insertPointSwapHist(PointSwapInfo) : int
+  +selectSwapCancelInfoList() : List<PointSwapCancelVo>
+  +updateSwapCancelInfo(PointSwapCancelVo) : void
+  +selectSwapHistForCancel(int) : PointSwapInfo
+  +selectSwapCancelInfo(int) : PointSwapCancelVo
+  +insertPointSwapCancelInfo(PointSwapInfo) : int
+  +selectSwapListForTransId(PointSwapInfo) : PointSwapInfo
+  +updateSwapInfoApproveNo(PointSwapInfo) : void
+  +selectBeforePurchaseCancel(PointSwapInfo) : PointSwapInfo
+  +updatePointSwapTransDiv(PointSwapInfo) : void
+  +selectDailySerialInfo(String) : PointSwapInfo
+  +selectSwapListWithRefTransId(PointSwapInfo) : PointSwapInfo
+  +selectTblUserCardPointCache(PointSwapInfo) : PointSwapInfo
+  +insertTblUserCardPointCache(PointSwapInfo) : int
+  +updateTblUserCardPointCache(PointSwapInfo) : void
+}
+
+class PointSwapDaoImpl{
+  ~log : Logger
+  -sqlSession : SqlSession
+  +selectDailySerialNo(String) : int
+  +selectDailyApproveNo(String) : int
+  +selectTodaySwapPoint(Map<String, Object>) : List<Map<String, Object>>
+  +selectSwapList(PointSwapInfo) : List<PointSwapInfo>
+  +insertPointSwapHist(PointSwapInfo) : int
+  +selectSwapCancelInfoList() : List<PointSwapCancelVo>
+  +updateSwapCancelInfo(PointSwapCancelVo) : void
+  +selectSwapHistForCancel(int) : PointSwapInfo
+  +insertPointSwapCancelInfo(PointSwapInfo) : int
+  +selectSwapCancelInfo(int) : PointSwapCancelVo
+  +selectSwapListForTransId(PointSwapInfo) : PointSwapInfo
+  +updateSwapInfoApproveNo(PointSwapInfo) : void
+  +selectSwapInfo(PointSwapInfo) : PointSwapInfo
+  +selectSwapListPRD(Map<String, Object>) : List<PointSwapInfo>
+  +selectSwapTimeoutList(PointSwapInfo) : List<PointSwapInfo>
+  +selectBeforePurchaseCancel(PointSwapInfo) : PointSwapInfo
+  +updatePointSwapTransDiv(PointSwapInfo) : void
+  +selectDailySerialInfo(String) : PointSwapInfo
+  +selectSwapListWithRefTransId(PointSwapInfo) : PointSwapInfo
+  +selectTblUserCardPointCache(PointSwapInfo) : PointSwapInfo
+  +insertTblUserCardPointCache(PointSwapInfo) : int
+  +updateTblUserCardPointCache(PointSwapInfo) : void
+}
+
+PointSwapDao <|.. PointSwapDaoImpl
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+
+actor 허브
+
+허브 -> PointRepeaterController ++: hub/minuspoint.do
+
+PointRepeaterController -> PointRepeaterController : 파라미터 유효성 체크
+
+PointRepeaterController -> PointRepeatService ++: minusPoint(\nHttpServletRequest request,\n PointRepeat param)
+note left: PointRepeat : 포인트 요청관련 \n공통으로 사용되는 Bean
+
+PointRepeatService -> HubSwapDao ++: selectHubSwapInfoForHubTrId(hubSwapInfo)
+return PointSwapInfo check
+note left: hub_trans_id 중복체크
+
+alt check != null
+   PointRepeaterController <-- PointRepeatService: PointRepeat result
+   note right: 거래고유번호 중복
+else
+  alt param.getPartner() == "hanamembers"
+    PointRepeatService -> PointRepeatService ++: result = minusHanaPoint(param)
+    PointRepeatService -> PointSwapDao ++: selectTodaySwapPoint(tester)
+    return pointInfo
+    PointRepeatService -> HubSwapDao ++: selectTodayHubSwapPoint(tester)
+    return hubInfo
+    PointRepeatService -> CarSwapDao ++: selectTodayCarSwapPoint(tester)
+    return carInfo
+
+    loop Map<String, Object> pointTemp : pointInfo
+      opt pointTemp.get("res_date_gb").toString().equals("D")
+        opt regSource == "hanamembers"
+          PointRepeatService -> PointRepeatService: maxHanaMoney += Integer.parseInt(pointTemp.get("req_point").toString())
+        end
+      end
+    end
+
+    note right: hubInfo, carInfo loop생략
+
+    note over PointRepeatService: 메시지 전송 별도 페이지 작성\n 이부분 소스는 minuspoint.do-시퀀스2.pu
+
+    return PointRepeat result
+  else param.getPartner() == "kbpointree"
+    PointRepeatService -> PointRepeatService ++: result = minusKbPoint(param)
+    deactivate
+'  else param.getPartner() == "shinhan"
+'    PointRepeatService -> PointRepeatService ++: result = minusShinhanPoint(param)
+'    deactivate
+'  else param.getPartner() == "bccard"
+'    PointRepeatService -> PointRepeatService ++: result = minusBcPoint(param)
+'    deactivate
+'  else param.getPartner() == "samsungcard"
+'    PointRepeatService -> PointRepeatService ++: result = minusSamsungPoint(param)
+'    deactivate
+'  else param.getPartner() == "bookandlife"
+'    PointRepeatService -> PointRepeatService ++: result = minusBookAndLifePoint(param)
+'    deactivate
+'  else param.getPartner() == "hyundaicard"
+'    PointRepeatService -> PointRepeatService ++: result = minusHyundaiPoint(param)
+'    deactivate
+  end
+end
+
+return PointRepeat result
+return mav
+
+@enduml

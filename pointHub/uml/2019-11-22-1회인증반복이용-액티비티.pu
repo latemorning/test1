@@ -1,0 +1,71 @@
+@startuml
+
+start
+
+:**std/validateUser**
+약관동의;
+
+:**/phub/getKmcSendParam.do**
+KmcController.getKmcSendParam
+*1회인증인지 확인
+*SEND_URL, RESULT_URL 설정]
+
+if(isSuccess) then (success)
+
+  if(로컬테스트) then (yes)
+
+    :**/kmc/kmcReqLoad.do**
+    KmcTestController
+    .kmcReqLoad()
+    *test/kmcReq로 forward만함]
+
+    :**test/kmcReq**
+    이름입력;
+
+    :**/kmc/kmcisResTest2.do**
+    KmcTestController
+    .kmcisRes()
+    *하드코딩된 정보 세션set]
+  elseif(실인증) then (yes)
+
+    partition KMC {
+      :**https://www.kmcert.com**
+      **/kmcis/web/kmcisReq.jsp**]
+
+      :인증정보 입력;
+    }
+
+    :**/kmc/kmcisRes.do**
+    KmcController.kmcisRes
+    *request 검증/세션set]
+  elseif(1회인증) then (yes)
+
+    #6bc76b:**SbankController**
+    *SbankService
+    **SbankHttpService
+    ***세틀에유니크ID요청
+    **유니크ID로 회원조회
+    **조회된 회원 검증/세션set]
+  elseif(다날) then (yes)
+
+    :다날인증URL]
+    :인증정보 입력;
+    :다날 검증/세션set]
+  else (nothing)
+
+    stop
+  endif
+
+
+  :std/validateResult;
+
+else (fail)
+
+  :Exception;
+  stop
+
+endif
+
+stop
+
+@enduml

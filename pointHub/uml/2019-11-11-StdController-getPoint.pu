@@ -1,0 +1,75 @@
+@startuml
+actor function_clsAgr
+participant StdController
+participant ComnService
+participant ClipPointService
+participant FamilyPointService
+participant SbankService
+
+function_clsAgr -> StdController ++: doWorkAfterValid(Map, Request)
+note right: /phub/std/clsAgr.do
+return success
+
+function_clsAgr -> StdController ++: getPoint(Map, Request)
+note right: /phub/std/point.do\n!(data.serviceId=='SVC_FP' \n&& data.payYn=='N')
+
+StdController -> StdController ++: SbankDealVO\n, CertificationVO 조회
+deactivate StdController
+
+StdController -> ComnService ++: preventRetro(checkmap)
+note left: 뒤로가기 반복 체크
+return boolean
+
+
+StdController -> StdController ++: pointPage(View) 셋팅
+deactivate StdController
+
+StdController -> StdController ++: 거래번호 유효성 체크
+deactivate StdController
+
+StdController -> ClipPointService ++ #DarkSalmon: getPoint(params)
+note left: 포인트 조회
+return pointMap
+
+StdController -> StdController ++: 리턴정보 셋팅
+alt Constant.SERVICE_ID_SVC_FP.equals(serviceId)
+    StdController -> FamilyPointService ++: getFpMinPerDeal(tmap)
+    return fpMin
+    StdController -> StdController: SVC_FP정보 셋팅
+else
+    StdController -> StdController: SVC_FP외 정보 셋팅
+end
+deactivate StdController
+
+== /* finally ==
+
+StdController -> StdController ++: reqmap 셋팅
+opt serviceId=="SVC_FP" && PayYn=="Y" && blMustUpdate
+note over FamilyPointService: 포인트조회 성공시 진행상태 저장
+    alt OwnerYn=="Y"
+        StdController -> StdController: 개통자의 경우 자기 거래번호 셋팅
+    else
+        StdController -> StdController: 가족의 경우 개통자 거래번호 셋팅
+    end
+    note right: [개통자/피요청자 분기]
+    alt sLogCd=="00"
+        StdController -> StdController: 조회 완료 "PR130"
+    else
+        StdController -> StdController: 조회 실패 "PR900"
+    end
+    StdController -> GiftiShowService ++: updateFmlySupot(fmap)
+    return cnt
+end
+
+opt blMustUpdate
+    StdController -> SbankService ++ #005500: updateDealReqInfoStatPre(reqmap)
+    return cnt
+end
+
+deactivate StdController
+
+== finally */==
+
+return mv
+
+@enduml

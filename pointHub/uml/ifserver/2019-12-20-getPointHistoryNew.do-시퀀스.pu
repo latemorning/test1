@@ -1,0 +1,63 @@
+@startuml
+
+actor main.jsp
+participant NewCLiPPointController #LightBlue
+database USER_INFO_TBL
+database POINT_INFO_TBL
+
+box "adserver" #LightBlue
+	participant main.jsp
+	participant MyPointController
+	participant MyPointService
+end box
+
+box "ifserver" #White
+	participant NewCLiPPointController
+	participant CLiPPointService
+	participant UserInfoMapper
+	participant PointInfoMapper
+  database USER_INFO_TBL
+	database POINT_INFO_TBL
+end box
+
+main.jsp -> MyPointController ++: /mypoint/getPointHistoryNew.do
+note left: main_debug.jsp\nmain2.jsp\nusageHistory.jsp\n에서도 호출
+
+MyPointController -> MyPointService ++: getPointHistoryNew()
+
+MyPointService -> NewCLiPPointController ++: **<size:16>/adv/getPointHistoryNew.do</size>**
+
+NewCLiPPointController -> NewCLiPPointController ++: 파라미터 유효성 체크
+deactivate
+
+
+NewCLiPPointController -> CLiPPointService ++: getUserInfo()
+CLiPPointService -> UserInfoMapper ++: getUserInfo()
+UserInfoMapper -> USER_INFO_TBL: [select] getUserInfo
+UserInfoMapper <-- USER_INFO_TBL: UserInfoVo
+return UserInfoVo
+return UserInfoVo
+
+
+NewCLiPPointController -> NewCLiPPointController ++: 페이지 파라미터 셋팅
+deactivate
+note right: getPointHistory.do 와 다른점은\nPointInfoList 호출시\n페이지 셋팅
+
+
+NewCLiPPointController -> CLiPPointService ++: getNewPointInfoList(PointInfoVo)
+CLiPPointService -> PointInfoMapper ++: getNewPointInfoList(PointInfoVo)
+PointInfoMapper -> POINT_INFO_TBL: [select] getNewPointInfoList
+PointInfoMapper <-- POINT_INFO_TBL: PointInfoVo
+return List<PointInfoVo>
+return List<PointInfoVo>
+
+NewCLiPPointController -> NewCLiPPointController ++: json 리턴값 셋팅
+deactivate
+
+return JSONObject.toString()
+
+return MyPointBean
+
+return JSON String
+
+@enduml

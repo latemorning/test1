@@ -1,0 +1,31 @@
+@startuml
+
+actor 고객
+
+고객 -> 혜택플랫폼 ++ : 자동납부신청
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부이력저장(신청)
+deactivate
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부등록(insert)
+deactivate
+return : 결과VO
+
+고객 -> 혜택플랫폼 ++ : 자동납부변경
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부이력저장(변경)
+deactivate
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부변경(update)
+deactivate
+return : 결과VO
+
+고객 -> 혜택플랫폼 ++ : 자동납부해지
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부이력저장(해지)
+deactivate
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부해지(update)
+deactivate
+return : 결과VO
+
+고객 -> 혜택플랫폼 ++ : 자동납부내역조회
+혜택플랫폼 -> 혜택플랫폼 ++ : 자동납부내역조회(select)
+deactivate
+return : List<납부내역VO>
+
+@enduml

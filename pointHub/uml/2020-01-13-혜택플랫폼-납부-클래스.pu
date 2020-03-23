@@ -1,0 +1,75 @@
+@startuml
+
+class 연동_Service {
+  + 연동처리(전문) : 연동결과
+}
+
+class API수신_Controller {
+  + K포인트조회(사용자VO) : K포인트내역VO
+}
+
+class K포인트_Controller {
+  + K포인트조회(사용자VO) : K포인트내역VO
+  + K포인트사용(사용자VO, K포인트내역VO) : 결과VO
+  + K포인트사용취소(사용자VO, K포인트내역VO) : 결과VO
+}
+
+'-----------------------------------------------------------
+
+class 납부_DAO {
+  + 청구금액조회(사용자VO) : 청구내역VO
+  + 통신료납부(사용자VO, 청구내역VO) : 결과VO
+  + 통신료납부취소(사용자VO, 청구내역VO) : 결과VO
+  + 즉시납부(사용자VO, 청구내역VO) : 결과VO
+}
+
+interface 납부_Service {
+  + 청구금액조회(사용자VO) : 청구내역VO
+  + 통신료납부(사용자VO, 청구내역VO) : 결과VO
+  + 통신료납부취소(사용자VO, 청구내역VO) : 결과VO
+  + 즉시납부(사용자VO, 청구내역VO) : 결과VO
+}
+
+class 납부_ServiceImpl {
+  + 청구금액조회(사용자VO) : 청구내역VO
+  + 통신료납부(사용자VO, 청구내역VO) : 결과VO
+  + 통신료납부취소(사용자VO, 청구내역VO) : 결과VO
+  + 즉시납부(사용자VO, 청구내역VO) : 결과VO
+}
+
+납부_Service <|.. 납부_ServiceImpl
+납부_DAO <.. 납부_ServiceImpl
+
+청구내역VO <.. 납부_ServiceImpl
+사용자VO <.. 납부_ServiceImpl
+결과VO <.. 납부_ServiceImpl
+
+
+class 납부_Controller {
+  + 청구금액조회(사용자VO) : 청구내역VO
+  + 통신료납부(사용자VO, 청구내역VO) : 결과VO
+  + 통신료납부취소(사용자VO, 청구내역VO) : 결과VO
+  + 즉시납부(사용자VO, 청구내역VO) : 결과VO
+}
+
+납부_ServiceImpl <.. 납부_Controller
+
+class 청구내역VO {
+  + 청구번호
+  + 청구금액
+}
+class 사용자VO {
+  + user_nm
+  + user_ci
+  + user_ctn
+}
+class 결과VO {
+  + 결과코드
+  + 결과
+}
+
+
+'-----------------------------------------------------------
+
+
+@enduml

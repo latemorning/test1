@@ -1,0 +1,97 @@
+@startuml
+actor pointPage
+
+pointPage -> StdController ++: /phub/std/pay.do\nrequestPayFromSdk()
+note right: 포인트 사용 확인
+
+StdController -> StdController ++:객체 셋팅
+deactivate StdController
+
+StdController -> ComnService ++: preventRetro(checkmap)
+return boolean
+note left: 뒤로가기 반복 체크
+
+alt "SI".equals(sPayMethod)
+    StdController -> StdController: checkAmount(pntList)
+    activate StdController
+    deactivate StdController
+else "CU".equals(sPayMethod)||"CO".equals(sPayMethod)
+    StdController -> StdController: checkAmount4CU(cmap,request)
+    activate StdController
+    deactivate StdController
+end
+note left
+    전환율/금액 검증
+end note
+
+StdController -> ClipService: getBasicPointInfo(pgParamMap)
+activate ClipService
+return prvdrList
+note right
+    카드사별 정보 조회후
+    각 포인트 제공처별 최소 결제금액 확인
+end note
+
+opt sPayMethod.equals("CO")
+    opt Constant.PLC_DNL.equalsIgnoreCase(pgDiv)
+        StdController -> DnlService: validateDnlAmount(params)
+        activate DnlService
+        return boolean b
+
+        opt b == true
+            StdController -> DnlService: getCalculatePointsAmt(iSumPntAmt, sShopPntRate)
+            activate DnlService
+            return compareSumPoint
+        end
+    end
+    note left: 다날 처리
+end
+note left
+    각각의 포인트 금액의 합과
+    SUM금액 일치 여부 확인
+end note
+
+opt voDeal.getServiceId().equals(Constant.SERVICE_ID_SVC_FP) && !params.get("ttlPntAmt").equals("0")
+    StdController -> FamilyPointService: getGiftiShowGoodsInfoByAmt(params.get("ttl_pnt_amt"))
+    activate FamilyPointService
+    return tmpMap
+end
+note left: 상품 ID 검증 최대 금액 체크
+
+opt voDeal.getServiceId().equals(Constant.SERVICE_ID_SVC_FP)
+    StdController -> FamilyPointService: getFpMinPerDeal(tmap)
+    activate FamilyPointService
+    return sMinPoint
+end
+note left: 가족이 있는 개통자는 0 원 결제 가능  \n최소 금액 체크
+
+StdController -> SbankService: saveDealReq(params)
+activate SbankService
+return saveMap
+note left: 유효성 통과 후 신청정보 저장
+
+StdController -> SbankService: sendToPgPay(params)
+activate SbankService #DarkSalmon
+return pgMap
+note left: PG(SettleBank)사로 전송
+note right #DarkSalmon: sendToPgPay.pu 에 작성
+
+StdController -> StdController: 전송결과 셋팅
+
+StdController -> pointPage: ajax result
+note right: 결과 전송
+
+== finally ==
+opt !Constant.SUCCESS_CODE.equals(sLogCd) && blMustUpdate
+    StdController -> SbankService:updateDealReqInfoStat(statmap)
+    activate SbankService
+    deactivate SbankService
+end
+
+opt Constant.SERVICE_ID_SVC_FP.equals(sServiceId) && "Y".equals(voDeal.getPayYn()) && blMustUpdate
+    StdController -> GiftiShowService:updateFmlySupot(fmap)
+    activate GiftiShowService
+    deactivate GiftiShowService
+end
+
+@enduml

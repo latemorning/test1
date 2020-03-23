@@ -1,0 +1,33 @@
+@startuml
+
+actor 세틀뱅크
+actor 허브
+actor KMC
+
+세틀뱅크 -> 허브 : 포인트조회 요청
+note left: uk_id 포함
+
+세틀뱅크 <- 허브 : uk_id 요청
+세틀뱅크 -> 허브 : uk_id 전달
+
+alt uk_id == 저장된 uk_id
+
+    세틀뱅크 <-- 허브 : 포인트페이지
+else uk_id != 저장된 uk_id
+
+    허브 -> KMC : 본인인증 요청
+    허브 <- KMC : 본인인증 결과
+
+    alt 본인인증 성공
+
+        허브 -> 허브 : uk_id 저장
+        세틀뱅크 <- 허브 : 포인트페이지
+
+    else 본인인증 실패
+
+        세틀뱅크 <- 허브 : 인증실패페이지
+    end
+
+end
+
+@enduml

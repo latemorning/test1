@@ -1,0 +1,59 @@
+@startuml
+
+'adserver에서 호출하는 것으로 보이나 jsp에서 "/mypoint/getPointHistory.do"로 호출해야 되는데 호출 url 앞에 "/mypoint"가 붙어있지 않은 사용되는 것인지 알 수 없음
+
+actor eventPoint.jsp
+participant CLiPPointController #LightBlue
+database USER_INFO_TBL
+database POINT_INFO_TBL
+
+box "adserver" #LightBlue
+	participant eventPoint.jsp
+	participant MyPointController
+	participant MyPointService
+end box
+
+box "ifserver" #White
+	participant CLiPPointController
+	participant CLiPPointService
+	participant UserInfoMapper
+	participant PointInfoMapper
+  database USER_INFO_TBL
+	database POINT_INFO_TBL
+end box
+
+eventPoint.jsp -> MyPointController ++: getPointHistory()\n/getPointHistory.do
+note left: myPoint.js\n에서도 호출
+
+MyPointController -> MyPointService ++: getPointHistory()
+
+MyPointService -> CLiPPointController ++: getPointHistory()\n**<size:16>getPointHistory.do</size>**
+
+CLiPPointController -> CLiPPointController ++: 파라미터 유효성 체크
+deactivate
+
+
+CLiPPointController -> CLiPPointService ++: getUserInfo()
+CLiPPointService -> UserInfoMapper ++: getUserInfo()
+UserInfoMapper -> USER_INFO_TBL: [select] getUserInfo
+UserInfoMapper <-- USER_INFO_TBL: UserInfoVo
+return UserInfoVo
+return UserInfoVo
+
+CLiPPointController -> CLiPPointService ++: getPointInfoList()
+CLiPPointService -> PointInfoMapper ++: getPointInfoList()
+PointInfoMapper -> POINT_INFO_TBL: [select] getPointInfoList
+PointInfoMapper <-- POINT_INFO_TBL: PointInfoVo
+return List<PointInfoVo>
+return List<PointInfoVo>
+
+CLiPPointController -> CLiPPointController ++: json 리턴값 셋팅
+deactivate
+
+return JSONObject
+
+return MyPointBean
+
+return JSON String
+
+@enduml

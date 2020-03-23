@@ -1,0 +1,12 @@
+@startuml
+
+class SbankController
+class SbankDao
+class SbankHttpService
+class SbankServiceImpl
+interface SbankService
+
+SbankController --> SbankService
+SbankServiceImpl ..|> SbankService
+
+@enduml

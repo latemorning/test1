@@ -1,0 +1,46 @@
+Arguments: 
+  D:\app\nodejs\node.exe D:\home\harry\dev\yarn\bin\yarn.js install
+
+PATH: 
+  C:\Windows\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\softcamp\sds;C:\Windows\softcamp\sdk;C:\Windows\SoftCamp\SDS\x64;D:\app\TortoiseSVN\bin;D:\app\Git\cmd;D:\app\nodejs\;D:\home\harry\dev\yarn\bin\;C:\Users\harry\AppData\Roaming\npm;C:\Users\harry\AppData\Roaming\Dashlane\6.1931.0.22244\bin\Firefox_Extension\{442718d9-475e-452a-b3e1-fb1ee16b8e9f}\components;C:\Users\harry\AppData\Roaming\Dashlane\6.1931.0.22244\ucrt;C:\Users\harry\AppData\Roaming\Dashlane\6.1931.0.22244\bin\Qt;C:\Users\harry\AppData\Roaming\Dashlane\6.1931.0.22244\bin\Ssl;C:\Users\harry\AppData\Local\Yarn\bin
+
+Yarn version: 
+  1.17.3
+
+Node version: 
+  10.16.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: unable to verify the first certificate
+      at TLSSocket.onConnectSecure (_tls_wrap.js:1055:34)
+      at TLSSocket.emit (events.js:198:13)
+      at TLSSocket._finishInit (_tls_wrap.js:633:8)
+
+npm manifest: 
+  {
+    "name": "merong",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+      "babel-cli": "^6.26.0",
+      "babel-preset-env": "^1.6.1"
+    },
+    "scripts": {
+      "start": "node_modules/.bin/babel-node index.js"
+    },
+    "babel": {
+      "presets": [
+        "env"
+      ]
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

@@ -1,0 +1,64 @@
+@startuml
+
+actor 허브
+
+허브 -> PointRepeaterController ++: hub/getpoint.do
+
+
+PointRepeaterController -> PointRepeatService ++: getCardPoint(HttpServletRequest,\n PointRepeat)
+note left: PointRepeat : 포인트 요청관련 \n공통으로 사용되는 Bean
+
+PointRepeatService -> BcCardClientService ++: getPoint(BcCardMessage)
+note left: PointSwapInfo 상속한\n BcCardMessage \n카드사별 Message 존재
+
+note over BcCardClientService: BcCardClientService \n카드사별 Service, Impl 존재
+BcCardClientService -> PointSwapDao ++: selectDailySerialNo(BcConsts.system_name)
+return int ret
+
+
+BcCardClientService -> CardPointSwapManager ++: makeDefaultTrId(BcConsts.system_name, "", ""+ ret, "1")
+return String trId
+
+BcCardClientService -> CardPointSwapManager ++: setHandler(new PointHandler_BC(param))
+note over BcCardClientService: PointHandler_BC 생성시 전달한\nPointSwapInfo 상속받은 BcCardMessage param에\nNetty 호출결과 셋팅된다.
+
+CardPointSwapManager -> PointHandler_BC ++: getPoint()
+deactivate CardPointSwapManager
+
+PointHandler_BC -> PointHandler_BC ++: makeGetReqMsg()
+deactivate
+
+PointHandler_BC -> PointHandler_BC ++: writeTeleLog()
+deactivate
+note right: PointSwapServiceHandler\n 에서 상속받은 메서드
+
+create NettyClient_BC
+PointHandler_BC -> NettyClient_BC: new
+
+PointHandler_BC -> NettyClient_BC ++: send(pointSwapInfo.getReq_msg_bytes())
+return ResponseFuture res
+
+PointHandler_BC -> PointHandler_BC ++: parseGetResMsg()
+deactivate
+
+PointHandler_BC -> PointHandler_BC ++: writeTeleLog()
+deactivate
+
+BcCardClientService <-- PointHandler_BC
+
+deactivate PointHandler_BC
+
+return Future<BcCardMessage>
+
+return PointRepeat result
+
+return ModelAndView mav
+
+box "External Service" #LightBlue
+	participant CardPointSwapManager
+	participant PointHandler_BC
+	participant NettyClient_BC
+
+end box
+
+@enduml

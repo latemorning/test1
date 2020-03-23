@@ -1,0 +1,58 @@
+@startuml
+
+actor PointRepeatService
+
+PointRepeatService -> HanaCardClientService ++: minusPoint(hanaMsg)
+
+opt param.isPointOver() || param.getReq_point() == 0 || param.isCountOver()
+  PointRepeatService <- HanaCardClientService: result
+end
+
+create CardPointSwapManager
+HanaCardClientService -> CardPointSwapManager: new
+
+HanaCardClientService -> PointSwapDao ++: selectDailySerialNo("hanamembers")
+return ret
+
+HanaCardClientService -> CardPointSwapManager ++: makeDefaultTrId("hanamembers", "", ""+ ret, null)
+return trId
+
+HanaCardClientService -> CardPointSwapManager ++: setHandler(new PointHandler_HANA(param))
+
+CardPointSwapManager -> PointHandler_HANA ++: usePoint()
+deactivate CardPointSwapManager
+
+PointHandler_HANA -> PointHandler_HANA ++: makeReqMsg()
+deactivate
+
+PointHandler_HANA -> PointHandler_HANA ++: writeTeleLog(0)
+deactivate
+
+create NettyClient_HANA
+PointHandler_HANA -> NettyClient_HANA: new
+
+PointHandler_HANA -> NettyClient_HANA ++: send(pointSwapInfo.getReq_msg_bytes())
+return ResponseFuture res
+
+PointHandler_HANA -> PointHandler_HANA ++: parseResMsg()
+deactivate
+
+PointHandler_HANA -> PointHandler_HANA ++: writeTeleLog(1)
+deactivate
+
+HanaCardClientService <-- PointHandler_HANA
+
+deactivate PointHandler_HANA
+
+
+
+
+return Future<HanaCardMessage> hanaResult
+
+box "External Service" #LightBlue
+	participant CardPointSwapManager
+	participant PointHandler_HANA
+	participant NettyClient_HANA
+
+end box
+@enduml

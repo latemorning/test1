@@ -1,0 +1,68 @@
+@startuml
+
+class 연동_Service {
+  + 연동처리(전문) : 연동결과
+}
+
+class API수신_Controller {
+  + K포인트조회(사용자VO) : K포인트내역VO
+}
+
+class K포인트_Controller {
+  + K포인트조회(사용자VO) : K포인트내역VO
+  + K포인트사용(사용자VO, K포인트내역VO) : 결과VO
+  + K포인트사용취소(사용자VO, K포인트내역VO) : 결과VO
+}
+
+'-----------------------------------------------------------
+
+
+class 청구내역VO {
+  + 청구번호
+  + 청구금액
+}
+class 사용자VO {
+  + user_nm
+  + user_ci
+  + user_ctn
+}
+class 결과VO {
+  + 결과코드
+  + 결과
+}
+
+'-----------------------------------------------------------
+
+class 일대사_Scheduler {
+  + 통신료납부대사결과생성(대사정보VO) : void
+}
+
+class 일대사_Controller {
+  + 대사결과REST대기(대사정보VO) : 대사정보VO
+}
+
+class 일대사_Service {
+  + 통신료납부대사결과생성(대사정보VO) : void
+  + 대사결과REST대기(대사정보VO) : 대사정보VO
+}
+
+class 일대사_DAO {
+  + 통신료납부대사결과생성(대사정보VO) : void
+  + 대사결과REST대기(대사정보VO) : 대사정보VO
+}
+
+일대사_Service <.. 일대사_Scheduler
+일대사_Service <.. 일대사_Controller
+일대사_DAO <.. 일대사_Service
+대사정보VO <.. 일대사_Service
+
+class 대사정보VO {
+  + 대사번호
+  + 대사일자
+}
+
+
+'-----------------------------------------------------------
+
+
+@enduml

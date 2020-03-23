@@ -1,0 +1,59 @@
+@startuml
+actor StdController
+
+StdController -> SbankService: sendToPgPay(params)
+activate SbankService
+note left: pg결제 처리
+
+SbankService -> SbankDao: selectReqDataToPg(params)
+activate SbankDao
+note right: pg사 전송용\n 데이타 말기
+return sendmap
+
+opt Constant.PLC_DNL.equalsIgnoreCase(pgDiv)
+    SbankService -> DnlService: getPgCmsnRate(pHubTrNo)
+    activate DnlService
+    return pgCmsnRate
+    note left: 다날 가맹점 할인률
+    SbankService -> DnlService: getCalculatePointsAmt(points, pgCmsnRate)
+    activate DnlService
+    return pointsAmt
+    note left: 결제수수료(10%)를 차감한 \n금액(1단위 절삭) 계산
+end
+
+SbankService -> SbankHttpService: sendHttpPostSB(return_url_1, sendmap, etcMap)
+note left: 세틀뱅크로 신청정보 전송
+activate SbankHttpService
+
+SbankHttpService -> HttpService: sendHttpPost(sendUrl, hmap, params)
+activate HttpService
+note left: POST http 통신
+
+    HttpService -> HttpService: getHttpEntity(authorization, appType, bodyParam)
+    activate HttpService
+    return httpEntity
+
+    HttpService -> HttpService: getRestTempalte()
+    activate HttpService
+    return restTemplate
+
+    HttpService -> RestTemplate: exchange(baseUrl, HttpMethod.POST, httpEntity, Map.class)
+    activate RestTemplate
+    return responseEntity
+return resultVo
+
+SbankHttpService -> SbankHttpService: insertAdmApiIfLog(sendUrl, phub_tr_no, pgDealNo, resultVo)
+activate SbankHttpService
+deactivate SbankHttpService
+
+return result = pgmap
+
+alt pgmap.get(Constant.RET_CODE).equals("0061")
+    SbankService -> SbankService: 성공셋팅
+else
+    SbankService -> SbankService: 오류셋팅
+end
+
+return retmap
+
+@enduml
